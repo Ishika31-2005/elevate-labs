@@ -1,0 +1,84 @@
+// Importing express framework
+const express = require("express");
+
+// Creating our app
+const app = express();
+
+// Port number where our API will run
+const PORT = 3000;
+
+// Middleware to read JSON data sent in body
+app.use(express.json());
+
+
+// -----------------------
+// Data Store (Temporary)
+// -----------------------
+let books = [
+    { id: 1, title: "Atomic Habits", author: "James Clear" },
+    { id: 2, title: "The Power of Now", author: "Eckhart Tolle" }
+];
+
+
+// -----------------------
+// GET All Books
+// -----------------------
+app.get("/books", (req, res) => {
+    res.json(books);
+});
+
+
+// -----------------------
+// POST (Add New Book)
+// -----------------------
+app.post("/books", (req, res) => {
+    const { title, author } = req.body;
+
+    const newBook = {
+        id: books.length + 1,
+        title,
+        author
+    };
+
+    books.push(newBook);
+    res.status(201).json(newBook);
+});
+
+
+// -----------------------
+// PUT (Update Book by ID)
+// -----------------------
+app.put("/books/:id", (req, res) => {
+    const bookId = parseInt(req.params.id);
+    const { title, author } = req.body;
+
+    const book = books.find(b => b.id === bookId);
+
+    if (!book) {
+        return res.status(404).json({ message: "Book not found" });
+    }
+
+    book.title = title;
+    book.author = author;
+
+    res.json(book);
+});
+
+
+// -----------------------
+// DELETE (Remove Book by ID)
+// -----------------------
+app.delete("/books/:id", (req, res) => {
+    const bookId = parseInt(req.params.id);
+    books = books.filter(b => b.id !== bookId);
+
+    res.json({ message: "Book deleted successfully" });
+});
+
+
+// -----------------------
+// Start Server
+// -----------------------
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
