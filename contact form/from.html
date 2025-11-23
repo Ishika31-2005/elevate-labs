@@ -1,0 +1,173 @@
+<!-- Contact Form: HTML + CSS + JS
+
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Form — Validation Example</title>
+  <style>
+    :root { font-family: system-ui, Arial, sans-serif; --success:#0a8; --error:#e53; }
+    body { padding: 24px; max-width: 720px; margin: auto; }
+    form { display: grid; gap: 12px; }
+    label { font-weight: 600; }
+    input, textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
+    .row { display: grid; gap: 6px; }
+    .error { color: var(--error); font-size: 13px; min-height: 1.2em; }
+    .success { color: var(--success); font-weight: 700; }
+    .is-invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgba(229,83,83,0.06); }
+    .buttons { display:flex; gap:8px; }
+    button { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; }
+    button[type="submit"] { background: #0366d6; color:#fff; }
+    button[type="reset"] { background:#f3f3f3; }
+    .visually-hidden { position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px, 1px, 1px, 1px); white-space:nowrap; }
+  </style>
+</head>
+<body>
+  <h1>Contact Us</h1>
+  <p>Example contact form with client-side validation (name, email, message).</p>
+
+  <form id="contactForm" novalidate>
+    <div class="row">
+      <label for="name">Full name</label>
+      <input id="name" name="name" type="text" autocomplete="name" aria-describedby="name-error" aria-invalid="false" />
+      <div id="name-error" class="error" aria-live="polite"></div>
+    </div>
+
+    <div class="row">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" aria-describedby="email-error" aria-invalid="false" />
+      <div id="email-error" class="error" aria-live="polite"></div>
+    </div>
+
+    <div class="row">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="6" aria-describedby="message-error" aria-invalid="false"></textarea>
+      <div id="message-error" class="error" aria-live="polite"></div>
+    </div>
+
+    <div class="buttons">
+      <button type="submit">Send message</button>
+      <button type="reset">Reset</button>
+    </div>
+
+    <div id="form-feedback" role="status" aria-live="polite" class="visually-hidden"></div>
+  </form>
+
+  <script>
+    // Simple email regex (suitable for common validation needs)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const form = document.getElementById('contactForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const messageInput = document.getElementById('message');
+
+    const nameError = document.getElementById('name-error');
+    const emailError = document.getElementById('email-error');
+    const messageError = document.getElementById('message-error');
+    const feedback = document.getElementById('form-feedback');
+
+    function setError(input, errorEl, message) {
+      if (message) {
+        input.classList.add('is-invalid');
+        input.setAttribute('aria-invalid', 'true');
+        errorEl.textContent = message;
+      } else {
+        input.classList.remove('is-invalid');
+        input.setAttribute('aria-invalid', 'false');
+        errorEl.textContent = '';
+      }
+    }
+
+    function validate() {
+      let valid = true;
+
+      const nameVal = nameInput.value.trim();
+      const emailVal = emailInput.value.trim();
+      const messageVal = messageInput.value.trim();
+
+      // Name: required, at least 2 characters
+      if (!nameVal) {
+        setError(nameInput, nameError, 'Name is required.');
+        valid = false;
+      } else if (nameVal.length < 2) {
+        setError(nameInput, nameError, 'Please enter your full name (min 2 characters).');
+        valid = false;
+      } else {
+        setError(nameInput, nameError, '');
+      }
+
+      // Email: required + regex
+      if (!emailVal) {
+        setError(emailInput, emailError, 'Email is required.');
+        valid = false;
+      } else if (!emailRegex.test(emailVal)) {
+        setError(emailInput, emailError, 'Please enter a valid email address.');
+        valid = false;
+      } else {
+        setError(emailInput, emailError, '');
+      }
+
+      // Message: required, min length
+      if (!messageVal) {
+        setError(messageInput, messageError, 'Message is required.');
+        valid = false;
+      } else if (messageVal.length < 10) {
+        setError(messageInput, messageError, 'Message should be at least 10 characters.');
+        valid = false;
+      } else {
+        setError(messageInput, messageError, '');
+      }
+
+      return valid;
+    }
+
+    // Live validation: validate on blur & input to provide immediate feedback
+    nameInput.addEventListener('input', () => { validate(); });
+    emailInput.addEventListener('input', () => { validate(); });
+    messageInput.addEventListener('input', () => { validate(); });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault(); // prevent default form submission
+
+      feedback.className = 'visually-hidden';
+
+      if (validate()) {
+        // form is valid: here you would send data with fetch() to server
+        feedback.className = 'success';
+        feedback.textContent = 'Message sent successfully (client-side demo).';
+        feedback.classList.remove('visually-hidden');
+
+        // Example: clear the form after successful "send"
+        form.reset();
+
+        // Clear validation UI after reset
+        setError(nameInput, nameError, '');
+        setError(emailInput, emailError, '');
+        setError(messageInput, messageError, '');
+      } else {
+        // focus first invalid input
+        const firstInvalid = form.querySelector('.is-invalid');
+        if (firstInvalid) firstInvalid.focus();
+        feedback.className = '';
+        feedback.textContent = 'Please fix errors and try again.';
+        feedback.classList.remove('visually-hidden');
+      }
+    });
+
+    form.addEventListener('reset', function () {
+      // Wait for the browser to clear values, then clear validation UI
+      requestAnimationFrame(() => {
+        setError(nameInput, nameError, '');
+        setError(emailInput, emailError, '');
+        setError(messageInput, messageError, '');
+        feedback.className = 'visually-hidden';
+        feedback.textContent = '';
+      });
+    });
+  </script>
+</body>
+</html>
