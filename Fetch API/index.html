@@ -1,1 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fetch Users — Unique Solution</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <header class="topbar">
+      <h1>Users from JSONPlaceholder</h1>
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Search by name..." aria-label="Search users by name">
+        <button id="reloadBtn" class="btn">Reload Users</button>
+      </div>
+    </header>
 
+    <section id="status" class="status" aria-live="polite">Initializing...</section>
+
+    <section id="users" class="users-grid" aria-live="polite" aria-busy="false"></section>
+
+    <footer class="footer">
+      <small>Source: <a href="https://jsonplaceholder.typicode.com/users" target="_blank" rel="noopener">jsonplaceholder.typicode.com/users</a></small>
+    </footer>
+  </main>
+</body>
+</html>
